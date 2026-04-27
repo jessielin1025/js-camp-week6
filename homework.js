@@ -22,6 +22,11 @@ const ADMIN_TOKEN = process.env.API_KEY;
  * @returns {Promise<Array>} - 回傳 products 陣列
  */
 async function getProducts() {
+	const response = await fetch(`${BASE_URL}/api/livejs/v1/customer/${API_PATH}/products`);
+	console.log(response)
+	const data = await response.json();
+	return data.products;
+
 	// 請實作此函式
 	// 提示：
 	// 1. 使用 fetch() 發送 GET 請求
@@ -34,20 +39,34 @@ async function getProducts() {
  * @returns {Promise<Object>} - 回傳 { carts: [...], total: 數字, finalTotal: 數字 }
  */
 async function getCart() {
+	const response = await fetch(`${BASE_URL}/api/livejs/v1/customer/${API_PATH}/carts`);
+	const data = await response.json();
+	return {
+	carts: data.carts,
+	total: data.total,
+	finalTotal: data.finalTotal
+	};
 	// 請實作此函式
 }
 
 /**
- * 3. 錯誤處理：當 API 回傳錯誤時，回傳錯誤訊息
+  * 3. 錯誤處理：當 API 回傳錯誤時，回傳錯誤訊息
  * @returns {Promise<Object>} - 回傳 { success: boolean, data?: [...], error?: string }
  */
 async function getProductsSafe() {
-	// 請實作此函式
-	// 提示：
-	// 1. 加上 try-catch 處理錯誤
-	// 2. 檢查 response.ok 判斷是否成功
-	// 3. 成功回傳 { success: true, data: [...] }
-	// 4. 失敗回傳 { success: false, error: '錯誤訊息' }
+	try {
+        const response = await fetch(`${CUSTOMER_API}/products`);
+
+        // fetch 遇到 404 或 500 不會自動報錯，需要手動檢查 response.ok
+        if (!response.ok) {
+            throw new Error(`HTTP 錯誤碼: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return { success: true, data: data.products };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
 }
 
 // ========================================
@@ -61,12 +80,18 @@ async function getProductsSafe() {
  * @returns {Promise<Object>} - 回傳更新後的購物車資料
  */
 async function addToCart(productId, quantity) {
-	// 請實作此函式
-	// 提示：
-	// 1. 發送 POST 請求
-	// 2. body 格式：{ data: { productId: "xxx", quantity: 1 } }
-	// 3. 記得設定 headers: { 'Content-Type': 'application/json' }
-	// 4. body 要用 JSON.stringify() 轉換
+	const response = await fetch(`${CUSTOMER_API}/carts`, {
+		method: 'POST',
+		headers: {'Content-Type': 'application/json'},
+		body: JSON.stringify({
+			data: {
+                productId: productId,
+                quantity: quantity
+            }
+		})
+	});
+	const data = await response.json();
+	return data;
 }
 
 /**
@@ -76,10 +101,18 @@ async function addToCart(productId, quantity) {
  * @returns {Promise<Object>} - 回傳更新後的購物車資料
  */
 async function updateCartItem(cartId, quantity) {
-	// 請實作此函式
-	// 提示：
-	// 1. 發送 PATCH 請求
-	// 2. body 格式：{ data: { id: "購物車ID", quantity: 數量 } }
+	const response = await fetch(`${CUSTOMER_API}/carts`, {
+		method: 'PATCH',
+		headers: {'Content-Type': 'application/json'},
+		body: JSON.stringify({
+			data: {
+                id: cartId,
+                quantity: quantity
+            }
+		})
+	});
+	const data = await response.json();
+	return data;
 }
 
 /**
@@ -88,8 +121,11 @@ async function updateCartItem(cartId, quantity) {
  * @returns {Promise<Object>} - 回傳更新後的購物車資料
  */
 async function removeCartItem(cartId) {
-	// 請實作此函式
-	// 提示：發送 DELETE 請求到 /carts/{id}
+	const response = await fetch(`${CUSTOMER_API}/carts/${cartId}`, {
+		method: 'DELETE'
+	});
+	const data = await response.json();
+	return data;
 }
 
 /**
@@ -97,8 +133,11 @@ async function removeCartItem(cartId) {
  * @returns {Promise<Object>} - 回傳清空後的購物車資料
  */
 async function clearCart() {
-	// 請實作此函式
-	// 提示：發送 DELETE 請求到 /carts
+	const response = await fetch(`${CUSTOMER_API}/carts`, {
+		method: 'DELETE'
+	});
+	const data = await response.json();
+	return data;
 }
 
 // ========================================
@@ -109,13 +148,13 @@ async function clearCart() {
 請回答以下問題（可以寫在這裡或另外繳交）：
 
 1. HTTP 狀態碼的分類（1xx, 2xx, 3xx, 4xx, 5xx 各代表什麼）
-   答：
+   答：1xx = 請求已接收，程序持續進行中，但尚在處理中；2xx = 請求已成功被接收、理解並接受。；3xx = 需要採取進一步的操作以完成請求；4xx = 請求包含錯誤語法或無法完成請求；5xx = 伺服器在處理請求時發生錯誤
 
 2. GET、POST、PATCH、PUT、DELETE 的差異
-   答：
+   答：GET 是讀取、POST 是新增、PUT 是整筆替換、PATCH 是局部修改、DELETE 是刪除，這五個動詞共同構建了對伺服器資源進行標準化操作的語意規範
 
 3. 什麼是 RESTful API？
-   答：
+   答：RESTful API 是一種將網路上所有的資料視為「資源」，並透過標準的 HTTP 動詞（如 GET、POST）與路徑來進行存取與操作的架構風格。
 
 
 */
