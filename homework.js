@@ -22,16 +22,18 @@ const ADMIN_TOKEN = process.env.API_KEY;
  * @returns {Promise<Array>} - 回傳 products 陣列
  */
 async function getProducts() {
-	const response = await fetch(`${BASE_URL}/api/livejs/v1/customer/${API_PATH}/products`);
-	console.log(response)
-	const data = await response.json();
-	return data.products;
+  // 請實作此函式
+  // 提示：
+  // 1. 發送 GET 請求
+  const response = await fetch(
+    `${BASE_URL}/api/livejs/v1/customer/${API_PATH}/products`,
+  );
 
-	// 請實作此函式
-	// 提示：
-	// 1. 使用 fetch() 發送 GET 請求
-	// 2. 使用 response.json() 解析回應
-	// 3. 回傳 data.products
+  // 2. 解析 JSON 資料
+  const data = await response.json();
+
+  // 3. 回傳產品陣列
+  return data.products;
 }
 
 /**
@@ -39,34 +41,36 @@ async function getProducts() {
  * @returns {Promise<Object>} - 回傳 { carts: [...], total: 數字, finalTotal: 數字 }
  */
 async function getCart() {
-	const response = await fetch(`${BASE_URL}/api/livejs/v1/customer/${API_PATH}/carts`);
-	const data = await response.json();
-	return {
-	carts: data.carts,
-	total: data.total,
-	finalTotal: data.finalTotal
-	};
-	// 請實作此函式
+  const response = await fetch(
+    `${BASE_URL}/api/livejs/v1/customer/${API_PATH}/carts`,
+  );
+  const data = await response.json();
+  return data;
 }
 
 /**
-  * 3. 錯誤處理：當 API 回傳錯誤時，回傳錯誤訊息
+ * 3. 錯誤處理：當 API 回傳錯誤時，回傳錯誤訊息
  * @returns {Promise<Object>} - 回傳 { success: boolean, data?: [...], error?: string }
  */
 async function getProductsSafe() {
-	try {
-        const response = await fetch(`${CUSTOMER_API}/products`);
-
-        // fetch 遇到 404 或 500 不會自動報錯，需要手動檢查 response.ok
-        if (!response.ok) {
-            throw new Error(`HTTP 錯誤碼: ${response.status}`);
-        }
-
-        const data = await response.json();
-        return { success: true, data: data.products };
-    } catch (error) {
-        return { success: false, error: error.message };
+  // 請實作此函式
+  // 提示：
+  // 1. 加上 try-catch 處理錯誤
+  // 2. 檢查 response.ok 判斷是否成功
+  // 3. 成功回傳 { success: true, data: [...] }
+  // 4. 失敗回傳 { success: false, error: '錯誤訊息' }
+  try {
+    const response = await fetch(
+      `${BASE_URL}/api/livejs/v1/customer/${API_PATH}/products`,
+    );
+    if (!response.ok) {
+      return { success: false, error: "API 請求失敗" };
     }
+    const data = await response.json();
+    return { success: true, data: data.products };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
 }
 
 // ========================================
@@ -80,18 +84,29 @@ async function getProductsSafe() {
  * @returns {Promise<Object>} - 回傳更新後的購物車資料
  */
 async function addToCart(productId, quantity) {
-	const response = await fetch(`${CUSTOMER_API}/carts`, {
-		method: 'POST',
-		headers: {'Content-Type': 'application/json'},
-		body: JSON.stringify({
-			data: {
-                productId: productId,
-                quantity: quantity
-            }
-		})
-	});
-	const data = await response.json();
-	return data;
+  // 請實作此函式
+  // 提示：
+  // 1. 發送 POST 請求
+  // 2. body 格式：{ data: { productId: "xxx", quantity: 1 } }
+  // 3. 記得設定 headers: { 'Content-Type': 'application/json' }
+  // 4. body 要用 JSON.stringify() 轉換
+  const response = await fetch(
+    `${BASE_URL}/api/livejs/v1/customer/${API_PATH}/carts`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        data: {
+          productId,
+          quantity,
+        },
+      }),
+    },
+  );
+  const data = await response.json();
+  return data;
 }
 
 /**
@@ -101,18 +116,27 @@ async function addToCart(productId, quantity) {
  * @returns {Promise<Object>} - 回傳更新後的購物車資料
  */
 async function updateCartItem(cartId, quantity) {
-	const response = await fetch(`${CUSTOMER_API}/carts`, {
-		method: 'PATCH',
-		headers: {'Content-Type': 'application/json'},
-		body: JSON.stringify({
-			data: {
-                id: cartId,
-                quantity: quantity
-            }
-		})
-	});
-	const data = await response.json();
-	return data;
+  // 請實作此函式
+  // 提示：
+  // 1. 發送 PATCH 請求
+  // 2. body 格式：{ data: { id: "購物車ID", quantity: 數量 } }
+  const response = await fetch(
+    `${BASE_URL}/api/livejs/v1/customer/${API_PATH}/carts`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        data: {
+          id:cartId,
+          quantity,
+        },
+      }),
+    },
+  );
+  const data = await response.json();
+  return data;
 }
 
 /**
@@ -121,11 +145,19 @@ async function updateCartItem(cartId, quantity) {
  * @returns {Promise<Object>} - 回傳更新後的購物車資料
  */
 async function removeCartItem(cartId) {
-	const response = await fetch(`${CUSTOMER_API}/carts/${cartId}`, {
-		method: 'DELETE'
-	});
-	const data = await response.json();
-	return data;
+  // 請實作此函式
+  // 提示：發送 DELETE 請求到 /carts/{id}
+    const response = await fetch(
+    `${BASE_URL}/api/livejs/v1/customer/${API_PATH}/carts/${cartId}`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      }
+    },
+  );
+  const data = await response.json();
+  return data;
 }
 
 /**
@@ -133,12 +165,21 @@ async function removeCartItem(cartId) {
  * @returns {Promise<Object>} - 回傳清空後的購物車資料
  */
 async function clearCart() {
-	const response = await fetch(`${CUSTOMER_API}/carts`, {
-		method: 'DELETE'
-	});
-	const data = await response.json();
-	return data;
+  // 請實作此函式
+  // 提示：發送 DELETE 請求到 /carts
+      const response = await fetch(
+    `${BASE_URL}/api/livejs/v1/customer/${API_PATH}/carts`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      }
+    },
+  );
+  const data = await response.json();
+  return data;
 }
+
 
 // ========================================
 // HTTP 知識測驗 (額外練習)
